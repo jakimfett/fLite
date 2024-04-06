@@ -1,23 +1,22 @@
 # created 2024095(+/-3)
 # author: @jakimfett
 # inspiration: functions.sh
-echo "got here"
+#echo "got here"
 # @todo pull in nano settings from functions.sh
 . ~/run/mixins.src
 DEBUG=1
 
 function logThis {
-	echo "got here to logThis"
+#	echo "got here to logThis"
 	if [[ "${DEBUG}" -eq 1 ]]; then
-		echo "got past debug"
+#		echo "got past debug"
 		echo -e "${@}"
 	fi
 }
 function lt {
-	echo "got here to lt"
+#	echo "got here to lt"
 	logThis "${@}"
 }
-echo "got here"
 lt "@function:logThis/lt selftest" &&\
 	lt "@function:logThis/lt success" && lt "---"
 
