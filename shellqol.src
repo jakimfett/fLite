@@ -1,0 +1,46 @@
+# created 2024095(+/-3)
+# author: @jakimfett
+# inspiration: functions.sh
+
+# @todo pull in nano settings from functions.sh
+. ~/run/mixins.src
+DEBUG=1
+
+function logThis {
+	if [ "${DEBUG}" -eq 1 ]; then
+		echo -e "${@}"
+	fi
+}
+function lt {
+	logThis "${@}"
+}
+lt "@function:logThis/lt selftest" &&\
+	lt "@function:logThis/lt success" && lt "---"
+
+function mkrepo {
+	if [ ! -z "${@}" ]; then
+		# case statement?
+		lt "got from user:\n\t'${@}'"
+
+		if [ "${@:0:1}" == "-" ]; then
+			lt "got past command character"
+			# @todo check for improper format
+			# hardcoding dry run with a magic variable?
+			#	that's a choice.
+			#	destructive by default refactoring should be hard.
+			if [ "${@:2:5}" == "run" ]; then
+				lt "running whatever's next"
+			fi
+
+		fi
+	fi
+
+# @todo exit trapping
+}
+lt "@function:mkrepo loaded"
+
+function selfTest {
+	# todo shellcheck
+	lt "not yet implemented"
+}
+lt "@function:selfTest loaded"
