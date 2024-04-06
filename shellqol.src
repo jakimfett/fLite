@@ -27,15 +27,23 @@ lt "@function:logThis/lt testing..." &&\
 
 versionControlSystem='pijul'
 function v {
-	eval "${versionControlSystem} ${@}"
+	if [[ ! -z "${@}" ]]; then
+		eval "${versionControlSystem} ${@}"
+	else
+		eval "${versionControlSystem}"
+	fi
 }
 lt "@function:v loaded"
+
+function vc {
+	v diff
+}
+lt "@function:vc loaded"
 
 function vcs {
 	v record
 }
 lt "@function:vcs loaded"
-
 
 function mkrepo {
 	if [[ ! -z "${@}" ]]; then
