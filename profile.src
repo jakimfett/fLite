@@ -1,0 +1,3 @@
+time . ~/run/shellqol.src
+
+alias ff='nano ~/run/shellqol.src && . ~/run/shellqol.src'
