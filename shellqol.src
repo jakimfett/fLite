@@ -1,37 +1,43 @@
 # created 2024095(+/-3)
 # author: @jakimfett
 # inspiration: functions.sh
-
+echo "got here"
 # @todo pull in nano settings from functions.sh
 . ~/run/mixins.src
 DEBUG=1
 
 function logThis {
-	if [ "${DEBUG}" -eq 1 ]; then
+	echo "got here to logThis"
+	if [[ "${DEBUG}" -eq 1 ]]; then
+		echo "got past debug"
 		echo -e "${@}"
 	fi
 }
 function lt {
+	echo "got here to lt"
 	logThis "${@}"
 }
+echo "got here"
 lt "@function:logThis/lt selftest" &&\
 	lt "@function:logThis/lt success" && lt "---"
 
 function mkrepo {
-	if [ ! -z "${@}" ]; then
+	if [[ ! -z "${@}" ]]; then
 		# case statement?
 		lt "got from user:\n\t'${@}'"
-
-		if [ "${@:0:1}" == "-" ]; then
+		local trimmedInput=$(echo "${@:0:2}" | cut -d' ' -f2)
+		if [[ "${trimmedInput:0:2}" == '--' ]]; then
 			lt "got past command character"
 			# @todo check for improper format
 			# hardcoding dry run with a magic variable?
 			#	that's a choice.
 			#	destructive by default refactoring should be hard.
-			if [ "${@:2:5}" == "run" ]; then
+			lt "${@:3:5}"
+			if [[ "${@:3:5}" == "run" ]]; then
 				lt "running whatever's next"
 			fi
-
+		else
+			echo "Dry run: using '--run' option would create directory '${@}' and initialize a repository at that location."
 		fi
 	fi
 
