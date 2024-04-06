@@ -51,27 +51,35 @@ function mkrepo {
 		lt "got from user:\n\t'${@}'"
 		lt
 		local trimmedInput="${@:1}"
-		if [[ "${trimmedInput:0:2}" == '--' ]]; then
-			lt "command character found"
-
+		local cmd="mkdir '${@:2}.repo' && v init '${@:2}.repo'"
 			# @todo check for improper format
-			# hardcoding dry run with a magic variable?
+			# hardcoding dry run with a magic value?
 			#	that's a choice.
 			#	destructive by default refactoring should be hard.
 #			echo "${@:1:1}"
-			if [[ "${@:1:1}" == '--run' ]]; then
-				lt "running whatever's next"
-				local cmd="mkdir '${@:2}.repo' && v init '${@:2}.repo'"
-				echo -e "to create repo, run:\n ${cmd}\n"
-				echo -e "this would:"
-			fi
+		if [[ "${@:1:1}" == '--init' ]]; then
+			echo -e "This command should:"
 		else
-			echo "Dry run: using '--run' option would:"
+			echo "!! THIS IS A DRY RUN !!"
+			echo "Using '--init' option would:"
+
 		fi
 
-		echo -e "\t- create directory '${@}.repo'"
-		echo -e "\t- initialize a '${versionControlSystem}' repository inside directory '${@}.repo'"
+		echo -e "\t- create directory '${@:2}.repo' in $(pwd)"
+		echo -e "\t- initialize a '${versionControlSystem}' repository at '$(pwd)/${@:2}.repo'"
+		echo
+		if [[ "${@:1:1}" == '--init' ]]; then
+			echo -n "EVAL: "
+			eval "${cmd}"
+			echo
+		fi
 
+		echo "Result:"
+		if [ -d "${@:2}.repo/.${versionControlSystem}" ]; then
+			echo "Successfully created ${versionControlSystem} repository at '$(pwd)/${@:2}.repo'"
+		else
+			echo "NOT FOUND: ${versionControlSystem} repo at '$(pwd)/${@:2}.repo'"
+		fi
 	fi
 
 # @todo exit trapping
