@@ -1,3 +1,5 @@
+# intended to be linked as ~/.profile or similar for autoloading
+# eg "ln -s /absolute/path/to/file.src ~/.profile"
 time . ~/run/shellqol.src
 
 alias ff='nano ~/run/shellqol.src && . ~/run/shellqol.src'

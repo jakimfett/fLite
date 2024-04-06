@@ -10,33 +10,55 @@ function logThis {
 #	echo "got here to logThis"
 	if [[ "${DEBUG}" -eq 1 ]]; then
 #		echo "got past debug"
-		echo -e "${@}"
+		if [[ ! -z "${@}" ]]; then
+			echo -e "${@}"
+		else
+			echo
+		fi
 	fi
 }
 function lt {
 #	echo "got here to lt"
 	logThis "${@}"
 }
-lt "@function:logThis/lt selftest" &&\
+lt "@function:logThis/lt testing..." &&\
 	lt "@function:logThis/lt success" && lt "---"
+#@todo exit if lt fails
+
+versionControlSystem='pijul'
+function v {
+	eval "${versionControlSystem} ${@}"
+}
+lt "@function:v loaded"
+
+function vcs {
+	v record
+}
+lt "@function:vcs loaded"
+
 
 function mkrepo {
 	if [[ ! -z "${@}" ]]; then
 		# case statement?
 		lt "got from user:\n\t'${@}'"
-		local trimmedInput=$(echo "${@:0:2}" | cut -d' ' -f2)
+		lt
+		local trimmedInput="${@:1}"
 		if [[ "${trimmedInput:0:2}" == '--' ]]; then
 			lt "got past command character"
 			# @todo check for improper format
 			# hardcoding dry run with a magic variable?
 			#	that's a choice.
 			#	destructive by default refactoring should be hard.
-			lt "${@:3:5}"
-			if [[ "${@:3:5}" == "run" ]]; then
+			echo "${@:1:1}"
+			if [[ "${@:1:1}" == '--run' ]]; then
 				lt "running whatever's next"
+				local cmd="mkdir '${@:2}.repo' && v init '${@:2}.repo'"
+				echo -e "to create repo, run:\n '${cmd}'"
 			fi
 		else
-			echo "Dry run: using '--run' option would create directory '${@}' and initialize a repository at that location."
+			echo "Dry run: using '--run' option would:"
+			echo -e "\t- create directory '${@}.repo'"
+			echo -e "\t- initialize a '${versionControlSystem}' repository inside directory '${@}.repo'"
 		fi
 	fi
 
@@ -46,6 +68,12 @@ lt "@function:mkrepo loaded"
 
 function selfTest {
 	# todo shellcheck
-	lt "not yet implemented"
+	lt "\tdiscreet testing function not yet implemented,\n\tsee above for inline tests"
 }
 lt "@function:selfTest loaded"
+lt
+lt "running self-test function 'selfTest':"
+selfTest
+
+#@todo port over function registration
+lt "\n> loading complete, see above for available functions"
