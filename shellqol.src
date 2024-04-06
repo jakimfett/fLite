@@ -52,22 +52,26 @@ function mkrepo {
 		lt
 		local trimmedInput="${@:1}"
 		if [[ "${trimmedInput:0:2}" == '--' ]]; then
-			lt "got past command character"
+			lt "command character found"
+
 			# @todo check for improper format
 			# hardcoding dry run with a magic variable?
 			#	that's a choice.
 			#	destructive by default refactoring should be hard.
-			echo "${@:1:1}"
+#			echo "${@:1:1}"
 			if [[ "${@:1:1}" == '--run' ]]; then
 				lt "running whatever's next"
 				local cmd="mkdir '${@:2}.repo' && v init '${@:2}.repo'"
-				echo -e "to create repo, run:\n '${cmd}'"
+				echo -e "to create repo, run:\n ${cmd}\n"
+				echo -e "this would:"
 			fi
 		else
 			echo "Dry run: using '--run' option would:"
-			echo -e "\t- create directory '${@}.repo'"
-			echo -e "\t- initialize a '${versionControlSystem}' repository inside directory '${@}.repo'"
 		fi
+
+		echo -e "\t- create directory '${@}.repo'"
+		echo -e "\t- initialize a '${versionControlSystem}' repository inside directory '${@}.repo'"
+
 	fi
 
 # @todo exit trapping
