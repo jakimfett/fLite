@@ -4,10 +4,12 @@
 # inspiration: functions.sh
 # @todo pull in nano settings from functions.sh
 
+if [ -z ${DEBUG} ]; then
 # Set DEBUG equal to 0 for least info, \
 #	9 for most info, \
 #		default is 1.
-DEBUG=1
+	DEBUG=1
+fi
 
 # Inform the user of their choice.
 if [[ "${DEBUG}" -gt 0 ]]; then
