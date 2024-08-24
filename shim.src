@@ -1,14 +1,32 @@
+# @todo hashbang
 # created 2024095(+/-3)
 # author: @jakimfett
 # inspiration: functions.sh
-#echo "got here"
 # @todo pull in nano settings from functions.sh
 
-# this fails, but has a partial fix on 4mage and the functions.sh code implements it properly
-#echo "$(realpath "${BASH_SOURCE}")"
-#. "$(dirname "$(realpath "${BASH_SOURCE}")")/mixins.src"
-
+# Set DEBUG equal to 0 for least info, \
+#	9 for most info, \
+#		default is 1.
 DEBUG=1
+# @todo setup debug flag for `time` directive
+
+echo 'Shim successfully loaded, script continues.'
+
+# Get realpath (and inform user)
+time srcRealpath="$(realpath "${BASH_SOURCE}")" && if [[ "${DEBUG}" -gt 0 ]]; then
+	echo "BASH_SOURCE realpath: '${srcRealpath}'"
+fi
+
+time srcDirName="$(dirname "${srcRealpath}")" && if [[ "${DEBUG}" -gt 0 ]]; then
+	echo "realpath dirname: '${srcDirName}'"
+fi
+
+echo 'Sourcing mixins, please stand by.'
+time . "${srcDirName}/mixins.src"
+
+#. "$(dirname "$(realpath "${BASH_SOURCE}")")/mixins.src"
+#. ~/run/mixins.src
+# 
 
 function logThis {
 #	echo "got here to logThis"
