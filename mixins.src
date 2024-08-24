@@ -23,3 +23,7 @@ alias nano="nano --nowrap --backup --positionlog --autoindent --linenumbers --so
 alias ssh-makey='ssh-keygen -a 256 -t ed25519'
 alias ssh-mykey='cat ~/.ssh/id_ed25519.pub'
 alias ssh-showkey='cat ~/.ssh/id_ed25519.pub && echo -e "^-- personal pubkey\n\nserver key(s) --v"; ssh-keygen -lf <(ssh-keyscan localhost 2>/dev/null)'
+alias sd='shutdown -hP now'
+alias when='date +"%j day %t%t%t (y:%Y - m:%m w:%V d:%d)%n%H:%M.%S chrono%t%t%t%t   (%Z/UTC%z)"'
+alias p=pijul
+alias g=git

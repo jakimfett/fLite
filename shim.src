@@ -3,7 +3,11 @@
 # inspiration: functions.sh
 #echo "got here"
 # @todo pull in nano settings from functions.sh
-. ~/run/mixins.src
+
+# this fails, but has a partial fix on 4mage and the functions.sh code implements it properly
+#echo "$(realpath "${BASH_SOURCE}")"
+#. "$(dirname "$(realpath "${BASH_SOURCE}")")/mixins.src"
+
 DEBUG=1
 
 function logThis {
