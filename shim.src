@@ -8,46 +8,76 @@
 #	9 for most info, \
 #		default is 1.
 DEBUG=1
-# @todo setup debug flag for `time` directive
 
-echo 'Shim successfully loaded, script continues.'
-
-# Get realpath (and inform user)
-time srcRealpath="$(realpath "${BASH_SOURCE}")" && if [[ "${DEBUG}" -gt 0 ]]; then
-	echo "BASH_SOURCE realpath: '${srcRealpath}'"
+# Inform the user of their choice.
+if [[ "${DEBUG}" -gt 0 ]]; then
+	echo 'Shim loaded (DEBUG='${DEBUG}'), script continues.'
+	echo
 fi
 
-time srcDirName="$(dirname "${srcRealpath}")" && if [[ "${DEBUG}" -gt 0 ]]; then
-	echo "realpath dirname: '${srcDirName}'"
-fi
-
-echo 'Sourcing mixins, please stand by.'
-time . "${srcDirName}/mixins.src"
-
-#. "$(dirname "$(realpath "${BASH_SOURCE}")")/mixins.src"
-#. ~/run/mixins.src
-# 
-
+# Make it easier to inform the user.
 function logThis {
-#	echo "got here to logThis"
-	if [[ "${DEBUG}" -eq 1 ]]; then
-#		echo "got past debug"
-		if [[ ! -z "${@}" ]]; then
-			echo -e "${@}"
-		else
-			echo
-		fi
+	if [[ "${DEBUG}" -gt 3 ]]; then
+		echo "function logThis got value '${@}'"
+	fi
+	if [[ ! -z "${@}" ]]; then
+		echo -e "${@}"
+	else
+		echo
 	fi
 }
-function lt {
-#	echo "got here to lt"
-	logThis "${@}"
-}
-lt "@function:logThis/lt testing..." &&\
-	lt "@function:logThis/lt success" && lt "---"
-#@todo exit if lt fails
+alias lt=logThis
+[ "${DEBUG}" -gt 0 ] && lt "@function:logThis (lt) loaded"
+[ "${DEBUG}" -gt 1 ] && lt "@function:logThis (& 'lt' alias) testing..." &&\
+	lt "@function:logThis success" && lt "---"
+[ "${DEBUG}" -gt 0 ] && lt
+# @todo exit (w/ trapping?) for if `lt` fails
+
+
+# Get realpath (and inform user)
+pathCmd='srcRealpath="$(realpath "${BASH_SOURCE}")"'
+if [[ "${DEBUG}" -gt 2 ]]; then 
+	time eval "${pathCmd}"
+else 
+	eval "${pathCmd}"
+fi
+
+if [[ "${DEBUG}" -gt 1 ]]; then
+	lt "BASH_SOURCE realpath: '${srcRealpath}'"
+fi
+
+# ---
+
+# Getting the source directory path
+dirCmd='srcDirName="$(dirname "${srcRealpath}")"'
+if [[ "${DEBUG}" -gt 2 ]]; then 
+	time eval "${dirCmd}"
+else 
+	eval "${dirCmd}"
+fi
+
+if [[ "${DEBUG}" -gt 1 ]]; then
+	lt "realpath dirname: '${srcDirName}'"
+fi
+
+
+if [[ "${DEBUG}" -gt 1 ]]; then
+	lt -n 'Sourcing mixins...'
+fi
+
+mixSrc='. "${srcDirName}/mixins.src"'
+if [[ "${DEBUG}" -gt 2 ]]; then 
+	time eval "${mixSrc}"
+else 
+	eval "${mixSrc}"
+fi
+if [[ "${DEBUG}" -gt 1 ]]; then
+	lt "mixins sourced from '${mixSrc}'" && lt
+fi
+
 
 versionControlSystem='pijul'
+# @todo make this an array, do single-letter abbreviations with a binding for v=default?
 function v {
 	if [[ ! -z "${@}" ]]; then
 		eval "${versionControlSystem} ${@}"
@@ -55,17 +85,17 @@ function v {
 		eval "${versionControlSystem}"
 	fi
 }
-lt "@function:v loaded"
+[ "${DEBUG}" -gt 0 ] && lt "@function:v loaded"
 
 function vc {
 	v diff
 }
-lt "@function:vc loaded"
+[ "${DEBUG}" -gt 0 ] && lt "@function:vc loaded"
 
 function vcs {
 	v record
 }
-lt "@function:vcs loaded"
+[ "${DEBUG}" -gt 0 ] && lt "@function:vcs loaded"
 
 function mkrepo {
 	if [[ ! -z "${@}" ]]; then
@@ -106,16 +136,18 @@ function mkrepo {
 
 # @todo exit trapping
 }
-lt "@function:mkrepo loaded"
+[ "${DEBUG}" -gt 0 ] && lt "@function:mkrepo loaded"
 
 function selfTest {
 	# todo shellcheck
-	lt "\tdiscreet testing function not yet implemented,\n\tsee above for inline tests"
+	lt "\tdiscreet testing function not yet implemented,"
+	lt "\tedit DEBUG variable in '${BASH_SOURCE}'"
+	lt "\t\t then source again to see inline tests"
 }
-lt "@function:selfTest loaded"
+[ "${DEBUG}" -gt 0 ] && lt "@function:selfTest loaded"
 lt
 lt "running self-test function 'selfTest':"
 selfTest
 
 #@todo port over function registration
-lt "\n> loading complete, see above for available functions"
+lt "\n> shim loading complete, see above for available functions"
