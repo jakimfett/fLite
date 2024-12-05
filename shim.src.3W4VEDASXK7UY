@@ -1,0 +1,166 @@
+# @todo hashbang
+# created 2024095(+/-3)
+# author: @jakimfett
+# inspiration: functions.sh
+# @todo pull in nano settings from functions.sh
+>>>>>>> 1 [UFB44CK2 ]
+>>>>>>> 2 [UFB44CK2 ]
+#. ~/run/mixins.src
+<<<<<<< 2
+======= 1 [3W4VEDAS Match functions.sh filename, address hardpath bug.]
+
+# Set DEBUG equal to 0 for least info, \
+#	9 for most info, \
+#		default is 1.
+[ -z ${DEBUG} ] && DEBUG=1
+
+<<<<<<< 1
+
+# Inform the user of their choice.
+if [[ "${DEBUG}" -gt 0 ]]; then
+	echo 'Shim loaded (DEBUG='${DEBUG}'), script continues.'
+	echo
+fi
+
+# Make it easier to inform the user.
+function logThis {
+	if [[ "${DEBUG}" -gt 3 ]]; then
+		echo "function logThis got value '${@}'"
+	fi
+	if [[ ! -z "${@}" ]]; then
+		echo -e "${@}"
+	else
+		echo
+	fi
+}
+alias lt=logThis
+[ "${DEBUG}" -gt 0 ] && lt "@function:logThis (lt) loaded"
+[ "${DEBUG}" -gt 1 ] && lt "@function:logThis (& 'lt' alias) testing..." &&\
+	lt "@function:logThis success" && lt "---"
+[ "${DEBUG}" -gt 0 ] && lt
+# @todo exit (w/ trapping?) for if `lt` fails
+
+
+# Get realpath (and inform user)
+pathCmd='srcRealpath="$(realpath "${BASH_SOURCE}")"'
+if [[ "${DEBUG}" -gt 2 ]]; then 
+	time eval "${pathCmd}"
+else 
+	eval "${pathCmd}"
+fi
+
+if [[ "${DEBUG}" -gt 1 ]]; then
+	lt "BASH_SOURCE realpath: '${srcRealpath}'"
+fi
+
+# ---
+
+# Getting the source directory path
+dirCmd='srcDirName="$(dirname "${srcRealpath}")"'
+if [[ "${DEBUG}" -gt 2 ]]; then 
+	time eval "${dirCmd}"
+else 
+	eval "${dirCmd}"
+fi
+
+>>>>>>> 3 [UFB44CK2 ]
+>>>>>>> 4 [UFB44CK2 ]
+			echo -e "${@}" # | tee -a <logfile>?
+<<<<<<< 4
+======= 3 [6O2UXYBU Setup DEBUG variable for `time` usage.]
+if [[ "${DEBUG}" -gt 1 ]]; then
+	lt "realpath dirname: '${srcDirName}'"
+fi
+
+
+if [[ "${DEBUG}" -gt 1 ]]; then
+	lt -n 'Sourcing mixins...'
+fi
+
+mixSrc='. "${srcDirName}/mixins.src"'
+if [[ "${DEBUG}" -gt 2 ]]; then 
+	time eval "${mixSrc}"
+else 
+	eval "${mixSrc}"
+fi
+if [[ "${DEBUG}" -gt 1 ]]; then
+	lt "mixins sourced from '${mixSrc}'" && lt
+fi
+<<<<<<< 3
+
+
+versionControlSystem='pijul'
+# @todo make this an array, do single-letter abbreviations with a binding for v=default?
+function v {
+	if [[ ! -z "${@}" ]]; then
+		eval "${versionControlSystem} ${@}"
+	else
+		eval "${versionControlSystem}"
+	fi
+}
+[ "${DEBUG}" -gt 0 ] && lt "@function:v loaded"
+
+function vc {
+	v diff
+}
+[ "${DEBUG}" -gt 0 ] && lt "@function:vc loaded"
+
+function vcs {
+	v record
+}
+[ "${DEBUG}" -gt 0 ] && lt "@function:vcs loaded"
+
+function mkrepo {
+	if [[ ! -z "${@}" ]]; then
+		# case statement?
+		lt "got from user:\n\t'${@}'"
+		lt
+		local trimmedInput="${@:1}"
+		local cmd="mkdir '${@:2}.repo' && v init '${@:2}.repo'"
+			# @todo check for improper format
+			# hardcoding dry run with a magic value?
+			#	that's a choice.
+			#	destructive by default refactoring should be hard.
+#			echo "${@:1:1}"
+		if [[ "${@:1:1}" == '--init' ]]; then
+			echo -e "This command should:"
+		else
+			echo "!! THIS IS A DRY RUN !!"
+			echo "Using '--init' option would:"
+
+		fi
+
+		echo -e "\t- create directory '${@:2}.repo' in $(pwd)"
+		echo -e "\t- initialize a '${versionControlSystem}' repository at '$(pwd)/${@:2}.repo'"
+		echo
+		if [[ "${@:1:1}" == '--init' ]]; then
+			echo -n "EVAL: "
+			eval "${cmd}"
+			echo
+		fi
+
+		echo "Result:"
+		if [ -d "${@:2}.repo/.${versionControlSystem}" ]; then
+			echo "Successfully created ${versionControlSystem} repository at '$(pwd)/${@:2}.repo'"
+		else
+			echo "NOT FOUND: ${versionControlSystem} repo at '$(pwd)/${@:2}.repo'"
+		fi
+	fi
+
+# @todo exit trapping
+}
+[ "${DEBUG}" -gt 0 ] && lt "@function:mkrepo loaded"
+
+function selfTest {
+	# todo shellcheck
+	lt "\tdiscreet testing function not yet implemented,"
+	lt "\tedit DEBUG variable in '${BASH_SOURCE}'"
+	lt "\t\t then source again to see inline tests"
+}
+[ "${DEBUG}" -gt 0 ] && lt "@function:selfTest loaded"
+lt
+lt "running self-test function 'selfTest':"
+selfTest
+
+#@todo port over function registration
+lt "\n> shim loading complete, see above for available functions"
