@@ -27,3 +27,6 @@ alias sd='shutdown -hP now'
 alias when='date +"%j day %t%t%t (y:%Y - m:%m w:%V d:%d)%n%H:%M.%S chrono%t%t%t%t   (%Z/UTC%z)"'
 alias p=pijul
 alias g=git
+
+export EDITOR="nano --nowrap --backup --positionlog --autoindent --linenumbers --softwrap --tabsize 3"
+export GIT_EDITOR="${EDITOR}"

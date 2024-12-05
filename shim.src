@@ -3,6 +3,7 @@
 # author: @jakimfett
 # inspiration: functions.sh
 # @todo pull in nano settings from functions.sh
+#. ~/run/mixins.src
 
 # Set DEBUG equal to 0 for least info, \
 #	9 for most info, \
@@ -19,10 +20,12 @@ fi
 # Make it easier to inform the user.
 function logThis {
 	if [[ "${DEBUG}" -gt 3 ]]; then
-		echo "function logThis got value '${@}'"
+		if [ ! -z "${@}" ]; then
+			echo "function logThis got value '${@}'"
+		fi
 	fi
 	if [[ ! -z "${@}" ]]; then
-		echo -e "${@}"
+		echo -e "> ${@}"
 	else
 		echo
 	fi
@@ -63,10 +66,10 @@ fi
 
 
 if [[ "${DEBUG}" -gt 1 ]]; then
-	lt -n 'Sourcing mixins...'
+	lt 'Sourcing mixins...'
 fi
 
-mixSrc='. "${srcDirName}/mixins.src"'
+mixSrc=". '${srcDirName}/mixins.src'"
 if [[ "${DEBUG}" -gt 2 ]]; then 
 	time eval "${mixSrc}"
 else 
