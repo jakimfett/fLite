@@ -3,7 +3,7 @@
 # author: @jakimfett
 # inspiration: functions.sh
 # @todo pull in nano settings from functions.sh
-#. ~/run/mixins.src
+
 # Set DEBUG equal to 0 for least info, \
 #	9 for most info, \
 #		default is 1.
@@ -27,7 +27,7 @@ function logThis {
 	fi
 }
 alias lt=logThis
-[ "${DEBUG}" -gt 0 ] && lt "@function:logThis (lt) loaded"
+[ "${DEBUG}" -ne 0 ] && lt "@function:logThis (lt) loaded"
 [ "${DEBUG}" -gt 1 ] && lt "@function:logThis (& 'lt' alias) testing..." &&\
 	lt "@function:logThis success" && lt "---"
 [ "${DEBUG}" -gt 0 ] && lt
@@ -65,15 +65,37 @@ if [[ "${DEBUG}" -gt 1 ]]; then
 	lt -n 'Sourcing mixins...'
 fi
 
-mixSrc='. "${srcDirName}/mixins.src"'
+#mixSrc=". \"${srcDirName}/mixins.src\""
+
+function loadMixins {
+
+	for srcFile in $(find "${srcDirName}/util" -name '*.src' ); do
+		if [[ "${DEBUG}" -gt 2 ]]; then 
+			time . "${srcFile}"
+		else
+			. "${srcFile}"
+		fi
+		if [[ "${DEBUG}" -gt 1 ]]; then 
+			lt "loaded from '${srcFile}'"
+		fi
+	done
+	return 0
+}
+
 if [[ "${DEBUG}" -gt 2 ]]; then 
-	time eval "${mixSrc}"
-else 
-	eval "${mixSrc}"
+	time loadMixins
+else
+	loadMixins
 fi
 
-if [[ "${DEBUG}" -gt 1 ]]; then
-	lt "mixins sourced from '${mixSrc}'" && lt
+#if [[ "${DEBUG}" -gt 2 ]]; then 
+#	time eval "${mixSrc}"
+#else 
+#	eval "${mixSrc}"
+#fi
+
+if [[ "${DEBUG}" -ne 0 ]]; then
+	lt "mixins sourced from '${srcDirName}/util'" && lt
 fi
 
 versionControlSystem='pijul'
@@ -103,6 +125,8 @@ function mkrepo {
 		lt "got from user:\n\t'${@}'"
 		lt
 		local trimmedInput="${@:1}"
+
+		# @todo decide on --bare or not for source, do @remote?
 		local cmd="mkdir '${@:2}.repo' && v init '${@:2}.repo'"
 			# @todo check for improper format
 			# hardcoding dry run with a magic value?
