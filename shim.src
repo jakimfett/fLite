@@ -1,4 +1,8 @@
-# @todo hashbang
+#!/usr/bin/env bash
+# --- here begins the evolution
+#	of this cross-platform shell library
+#		--> functions (lite) [ functions.sh ]
+#
 # created 2024095(+/-3)
 # author: @jakimfett
 # inspiration: functions.sh
@@ -97,70 +101,6 @@ fi
 if [[ "${DEBUG}" -ne 0 ]]; then
 	lt "mixins sourced from '${srcDirName}/util'" && lt
 fi
-
-versionControlSystem='pijul'
-# @todo make this an array, do single-letter abbreviations with a binding for v=default?
-function v {
-	if [[ ! -z "${@}" ]]; then
-		eval "${versionControlSystem} ${@}"
-	else
-		eval "${versionControlSystem}"
-	fi
-}
-[ "${DEBUG}" -gt 0 ] && lt "@function:v loaded"
-
-function vc {
-	v diff
-}
-[ "${DEBUG}" -gt 0 ] && lt "@function:vc loaded"
-
-function vcs {
-	v record
-}
-[ "${DEBUG}" -gt 0 ] && lt "@function:vcs loaded"
-
-function mkrepo {
-	if [[ ! -z "${@}" ]]; then
-		# case statement?
-		lt "got from user:\n\t'${@}'"
-		lt
-		local trimmedInput="${@:1}"
-
-		# @todo decide on --bare or not for source, do @remote?
-		local cmd="mkdir '${@:2}.repo' && v init '${@:2}.repo'"
-			# @todo check for improper format
-			# hardcoding dry run with a magic value?
-			#	that's a choice.
-			#	destructive by default refactoring should be hard.
-#			echo "${@:1:1}"
-		if [[ "${@:1:1}" == '--init' ]]; then
-			echo -e "This command should:"
-		else
-			echo "!! THIS IS A DRY RUN !!"
-			echo "Using '--init' option would:"
-
-		fi
-
-		echo -e "\t- create directory '${@:2}.repo' in $(pwd)"
-		echo -e "\t- initialize a '${versionControlSystem}' repository at '$(pwd)/${@:2}.repo'"
-		echo
-		if [[ "${@:1:1}" == '--init' ]]; then
-			echo -n "EVAL: "
-			eval "${cmd}"
-			echo
-		fi
-
-		echo "Result:"
-		if [ -d "${@:2}.repo/.${versionControlSystem}" ]; then
-			echo "Successfully created ${versionControlSystem} repository at '$(pwd)/${@:2}.repo'"
-		else
-			echo "NOT FOUND: ${versionControlSystem} repo at '$(pwd)/${@:2}.repo'"
-		fi
-	fi
-
-# @todo exit trapping
-}
-[ "${DEBUG}" -gt 0 ] && lt "@function:mkrepo loaded"
 
 function selfTest {
 	# todo shellcheck

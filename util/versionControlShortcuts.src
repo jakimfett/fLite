@@ -1,0 +1,382 @@
+# Revision control functionality.
+#
+# Created out of frustration,
+#	maintained with love.
+#
+# @current - git
+# @next - pijul
+# @why-migrate - consistency and flexibility
+#	--> (ease of moving files between projects without losing history)
+#
+
+# An attempt to abstract away the revision control system sharp edges and pains.
+#
+# Suggested workflow(s):
+#	- `vcs`	# <-- show the repository status, with other contextual info
+#	- modify file (editor of choice, default=nano+)
+#	- `fd`	# <-- to view the first diff (vs most recent revision)
+#	- `fds`	# <-- stage first diff for committing
+#	- `vs`	# <-- cached differences
+#	- ``	# <--
+#	- ``	# <--
+#	- ``	# <--
+#	- ``	# <--
+#	- ``	# <--
+#	-
+
+
+# add a gitignore file:
+#	`echo -e "# ignore editor backup files\n*~"> .gitignore`
+
+# version control homerow-adjacent single-hand shortcut
+# #funcs['usr_v']="Shortcut for '${fshEnv['versionControlSystem']}' version control."
+# funcs['usr_v']="Shortcut for the configured version control."
+# function v {
+# 	# Attempting to dynamically grab the version control location each time is computationally expensive, and expediant for an exeriment
+# 	local vcs="$(which "${fshEnv['versionControlSystem']}")"
+#
+# 	# Provided the version control specified in the config file can be found, evaluate the commands passed in.
+# #elif [ ! "$(eval "${vcs}")" ]; then
+#
+#
+# ## @needs - v version control
+# #function v {
+# #	v "${@}" # migrate to pijul when possible
+#  # }
+# #	logThis "Version control resists being used, halting!"
+# #	return # try again please
+#
+# 	if [ -n "${vcs}" ]; then
+#
+# 		${vcs} "${@}"
+#
+# 	else # otherwise, inform the user that the computer is lost
+# 		echo "Could not find version control system."
+# 	fi
+# }
+#
+# #function versionControlLocate {
+# #	local checkPath
+# #	if [ -z "${@}" ]; then
+# #		checkPath="$(pwd)"
+# #	elif [ -d "" ]; then
+# #		${fshEnv['versionControlSystem']}
+# #		checkPath=
+# #	else
+# #		return 13
+# #	fi
+# # }
+#
+#
+# funcs['vcs_listRemoteRepoConfig']="Display configured remote repositories."
+# # display a formatted list of remote configurations for the repository
+# function listRemoteRepoConfig {
+# 	v remote -v | awk '{print $1, " =-->  ",$2}' | sort | uniq
+# }
+#
+# funcs['vcs_rer']="Display 'listRemoteRepoConfig'."
+# function rer {
+# 	listRemoteRepoConfig
+# }
+#
+#
+# funcs['vcs_versionStatus']="Display a short version control status printout."
+# function versionStatus {
+# 	v status -s --ignore-submodules "${@}"
+# }
+#
+# function repoRemote {
+# 	v remote -v
+# }
+#
+#
+# funcs['vcs_showDiffs']="Display paths of modified / staged files."
+# function showDiffs {
+# 	# hardcoding these patterns is an antipattern, move to vcs.env?
+# 	versionStatus | egrep " M |MM |UU |AM |RM "
+# }
+#
+# #
+# # first diff
+# #
+# # if directory is a v repo,
+# #  display a 'v diff' of the first
+# #   unstaged, modified file
+# #
+# funcs['vcs_firstDifferentFile']="Display the path of the first difference."
+# #
+# # @arg(s):n/a
+# # @output:text (filepath(s))
+# function firstDifferentFile {
+# 	showDiffs | head -1 | rev | cut -d' ' -f 1 | rev
+# }
+#
+#
+# funcs['vcs_vd']="Display 'firstDifferentFile' changes."
+# # legacy finger memory shim
+# function fd {
+# 	echo "~ ~ ~ use 'vd' fir this functionality, 'vds' is DEPRICATED ~ ~ ~"
+# 	vd
+# }
+# function vd {
+# 	local firstDiff="$(firstDifferentFile)"
+#
+# 	if [ -n "${firstDiff}" ]; then
+# 		echo "diff of file at '${firstDiff}':"
+# 		echo
+# 		v diff "${firstDiff}"
+# 	else
+# 		echo "Nothing to diff!"
+# 	fi
+# }
+#
+#
+#
+# #function fdiff {
+# 	# This needs refactored for use of the "|RM " flag correctly
+# 	# RM = "file has been renamed, and modified, in the repo, since last checkin" aka hella edge case
+# #	local gitDiff="$(v status -s --ignore-submodules | egrep " M |MM |UU |AM |RM " | head -1)"
+# # ifdiff === *"RM "* then cut -d'->' oslt
+# #	alias gitdiff='v status -s --ignore-submodules | egrep " M |MM |UU |AM " | head -1'
+#
+# #	local gitDiff="$(gitdiff)"
+# #	local gitDiff="$(v status -s --ignore-submodules | egrep " M |MM |UU |AM " | head -1)"
+# #	local diffResult="${?}"
+#
+# 	# why == 0?
+# #	if [ "${diffResult}" == '0' ] && [ ! -z "${gitDiff:3}" ]; then
+# #		echo "${gitDiff:3}"
+# #	else
+# 		# @todo make this fail loudly (prevent downstream processing.)
+# #		return 13
+# 		# echoing text here is problematic, caution avoid
+# 		#echo "probably not a v repo here, verify 'v status -s' works, yeah?"
+# #	fi
+#
+# #}
+#
+#
+# #
+# # first diff save
+# #
+# # if fd,
+# #  stage file for committing
+# #
+# # @arg(s):filepath
+# # @output:boolean
+# #
+# # @todo - make fdiffstage function, split user shortcut & information from work
+# funcs['vcs_vds']="Stage the first difference."
+# # legacy finger memory shim
+# function fds {
+# 	echo "~ ~ ~ use 'vds' fir this functionality, 'fds' is DEPRICATED ~ ~ ~"
+# 	vds
+# }
+# function vds {
+# 	local filePath="$(firstDifferentFile)"
+#
+# 	# run pub script if exists
+# 	# @todo - catelogue/aggregate all of these convenient hacks somewhere.
+# 	# @todo - also probably get user consent for each of them, to avoid surprises.
+# 	#  if [ -f 'sh/pub.sh' ]; then
+# 	#		cat 'sh/pub.sh'
+# 	#  fi
+#
+# 	if [ ! -z "${filePath}" ]; then
+# 		v add "${filePath}"
+# 		v status -s "${filePath}"
+# 	fi
+#
+# 	# @todo - add check for contextual command usage user helpnotes, w/ flag to disable (quiet mode zero, by tag?)
+# 	echo "use the command 'vc' to see staged files"
+# 	# @done - replace 'v diff ...' command suggestion with a shortcut 'fdc'
+# }
+#
+# #funcs['fet']="Need to reconsider this shortcut."
+# # function fet {
+# # 	# if debugmode=false
+# # 	# clear
+# # #	logThis ""
+# # 	logThis -e "Remote repository URLs:\n\t$(listRemoteRepoConfig)"
+# # 	logThis
+# #	logThis
+# # }
+# #/home/jakimfett/sys/live/fsh.run/kor/aliases.src:49:alias fet='clear;gitfull'
+# #/home/jakimfett/sys/live/fsh.run/kor/aliases.src:41:alias gitfull='fUrl;echo;v branch -vv;echo;v status --ignore-submodules --short --column;echo;echo "current working directory:";echo;pwd;ls -ahB;echo'
+#
+#
+# #
+# # first diff display cached
+# #
+# funcs['vcs_vc']="Display version control staged-for-commit differences."
+# function vc {
+# 	v diff --cached
+# }
+#
+#
+# #
+# # show last (unversioned file) in version control listing
+# #
+# funcs['vcs_vl']="Show last unversioned file in list."
+# function vl {
+# 	v status -s | tail -1 | cut -d' ' -f2
+# }
+#
+# #
+# # add last unversioned file to version control
+# #
+# funcs['vcs_vla']="Add last displayed unversioned file to control system."
+# function vla {
+# 	LASTLINE="$(vl)"
+# 	v add "${LASTLINE}" \
+# 		&& echo "added file '${LASTLINE}' to version control" \
+# 			|| echo "could not add file '${LASTLINE}' to version control"
+#
+# 	vss
+# }
+#
+#
+# #
+# # version staged last / top item
+# #
+# funcs['vcs_vsl']="display the top item in the versioning cache"
+# function vsl {
+# 	vss | head -1 | cut -d' ' -f3
+# }
+#
+#
+# #
+# # version last (top) restore
+# #	@todo fix nomenclature between "stage" "cache" and others
+# #		@todo.2 note that this includes resolving eg \
+# #			"vl" means "last in list of unversioned files" and \
+# #			"vlr" means "restore top cached file to pre-staging state" \
+# #			...meaning that the same underlying 'vl' mechanism is implied by the base command, but they use differing (opposing?) underlying list mechanism. However, the advisability of clustering, eg all 'list' type shortcuts is appealing, and should be considered when refactoring this segment of the code. Obviously, http://www.thecodelesscode.com/case/234 applies here, but this /is/ pre-alpha so there's...some hope, maybe. The fact that a two-command-for-display and three-command-for-modify paradigm emerging is perhaps the more important takeaway. Modification of vss and vc commands is an additional @todo on this particular [hairy](https://www.catb.org/jargon/html/H/hairy.html) bit of hackery.
+# #
+# funcs['vcs_vlr']="unstage last (top) file in stage list"
+# function vlr {
+# 	v restore --staged "$(vsl)"
+# }
+#
+# #
+# # version control status
+# #
+# funcs['vcs_vs']="Display version control status."
+# function vs {
+# 	repoRemote
+# 	echo -e "\t---\t---\t---"
+# 	v branch -vv
+# 	echo -e "\t---\t---\t---"
+# 	versionStatus "${@}"
+# }
+#
+# funcs['vcs_vss']="Display version control SHORT status."
+# function vss {
+# 	v status --short --untracked=no
+# }
+#
+# funcs['vcs_vr']="Display version control remotes."
+# function vr {
+# 	repoRemote
+# }
+# # so apparently function overloading is silent, and does indeed work XD
+# #function vs {
+# #	v status
+# #}
+#
+# #
+# # first diff edit
+# #
+# funcs['vcs_vde']="Edit first different file."
+# function vde {
+# 	nano $(firstDifferentFile)
+# }
+#
+# #
+# # commit cached / staged changes
+# #
+# funcs['vcs_vcs']="Commit the staged file(s)."
+# function vcs {
+# 	v commit
+# }
+# #
+# # push changes
+# #
+# function vp {
+# 	v push
+# }
+
+
+#
+# commit changes
+#
+#funcs['vcs_vcc']="Commit and push staged file(s)."
+#function vcc {
+#	vc && vp
+#}
+#versionControlSystem='pijul'
+versionControlSystem='git'
+
+# @todo make this an array, do single-letter abbreviations with a binding for v=default?
+function v {
+	if [[ ! -z "${@}" ]]; then
+		eval "${versionControlSystem} ${@}"
+	else
+		eval "${versionControlSystem}"
+	fi
+}
+[ "${DEBUG}" -gt 0 ] && lt "@function:v loaded"
+
+function vc {
+	v diff
+}
+[ "${DEBUG}" -gt 0 ] && lt "@function:vc loaded"
+
+function vcs {
+	v record
+}
+[ "${DEBUG}" -gt 0 ] && lt "@function:vcs loaded"
+
+# function mkrepo {
+# 	if [[ ! -z "${@}" ]]; then
+# 		# case statement?
+# 		lt "got from user:\n\t'${@}'"
+# 		lt
+# 		local trimmedInput="${@:1}"
+#
+# 		# @todo decide on --bare or not for source, do @remote?
+# 		local cmd="mkdir '${@:2}.repo' && v init '${@:2}.repo'"
+# 			# @todo check for improper format
+# 			# hardcoding dry run with a magic value?
+# 			#	that's a choice.
+# 			#	destructive by default refactoring should be hard.
+# #			echo "${@:1:1}"
+# 		if [[ "${@:1:1}" == '--init' ]]; then
+# 			echo -e "This command should:"
+# 		else
+# 			echo "!! THIS IS A DRY RUN !!"
+# 			echo "Using '--init' option would:"
+#
+# 		fi
+#
+# 		echo -e "\t- create directory '${@:2}.repo' in $(pwd)"
+# 		echo -e "\t- initialize a '${versionControlSystem}' repository at '$(pwd)/${@:2}.repo'"
+# 		echo
+# 		if [[ "${@:1:1}" == '--init' ]]; then
+# 			echo -n "EVAL: "
+# 			eval "${cmd}"
+# 			echo
+# 		fi
+#
+# 		echo "Result:"
+# 		if [ -d "${@:2}.repo/.${versionControlSystem}" ]; then
+# 			echo "Successfully created ${versionControlSystem} repository at '$(pwd)/${@:2}.repo'"
+# 		else
+# 			echo "NOT FOUND: ${versionControlSystem} repo at '$(pwd)/${@:2}.repo'"
+# 		fi
+# 	fi
+#
+# # @todo exit trapping
+# }
+# [ "${DEBUG}" -gt 0 ] && lt "@function:mkrepo loaded"
+
